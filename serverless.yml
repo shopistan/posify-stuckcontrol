@@ -85,6 +85,7 @@ functions:
       - http:
           path: Purchase/delete/{id}
           method: delete
+          
   update:
     handler: handler.update
     events:
