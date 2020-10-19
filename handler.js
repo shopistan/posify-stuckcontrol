@@ -37,7 +37,6 @@ const listener = async (event, context) => {
   console.log(event.Records[0].Sns)
   return true;
  };
-
 module.exports = {
   count: countPurchase,
   all: getAllPurchase,

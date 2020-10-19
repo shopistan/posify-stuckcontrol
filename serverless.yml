@@ -1,7 +1,6 @@
 service: posify
 app: commercejs
 org: shopdevco
-
 provider:
   name: aws
   runtime: nodejs12.x
@@ -84,8 +83,7 @@ functions:
     events:
       - http:
           path: Purchase/delete/{id}
-          method: delete
-          
+          method: delete   
   update:
     handler: handler.update
     events:

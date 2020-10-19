@@ -167,7 +167,6 @@ const updatePurchase = async ({ id, ...updCustomer }) => {
     return { statusCode: 400, message: err.message };
   }
 };
-
 module.exports = {
   all,
   count,

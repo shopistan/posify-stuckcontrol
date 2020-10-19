@@ -5,7 +5,6 @@ const faker = require('faker');
 // const  = require('./index');
 const testHelper = require('../../utils/test.helper');
 const Purchase = require('../../controllers/purchase') ;
-
 beforeEach(testHelper.setupTest);
 describe('Purchase', () => {
   describe('oderlist', () => {
