@@ -1,83 +1,67 @@
-const { Purchase } = require('../../models');
-const { vendor } = require('../../models');
+const { Purchase } = require("../../models");
+const { vendor } = require("../../models");
 // const { PurchaseSchema } = require('../../utils/validator');
-const axios = require('axios');
+const axios = require("axios");
 
-
-
-const SNS = require('../../utils/sns');
-const { snsTopics } = require('../../config/keys');
+const SNS = require("../../utils/sns");
+const { snsTopics } = require("../../config/keys");
 
 const sqs = SNS({
   isOffline: false, // Only required for CLI testing, in app it will pick this automaticlally
   isSqs: true,
 });
-const sns= SNS(
-  {
-    isOffline:false,
-  }
-)
-
-
-
+const sns = SNS({
+  isOffline: false,
+});
 
 const all = async () => {
-  try{
-  const Purchasess = await Purchase.find({});
-  return { data: Purchasess };
-  }
-  catch(err)
-  {
-    console.log("Error:",err)
+  try {
+    const Purchasess = await Purchase.find({});
+    return { data: Purchasess };
+  } catch (err) {
+    console.log("Error:", err);
   }
 };
 
 const vendorall = async () => {
-  try{
-  const vendorss = await vendor.find({});
-  return { data: vendorss };
-  }
-  catch(err)
-  {
-    console.log("Error:",err)
+  try {
+    const vendorss = await vendor.find({});
+    return { data: vendorss };
+  } catch (err) {
+    console.log("Error:", err);
   }
 };
 
-
 const vendor_count = async () => {
-  try{
-  const VendorCount = await vendor.count({});
-  return { data: { count: VendorCount } };
-  }
-  catch(err)
-  {
-    console.log("Error:'",err)
+  try {
+    const VendorCount = await vendor.count({});
+    return { data: { count: VendorCount } };
+  } catch (err) {
+    console.log("Error:'", err);
   }
 };
 
 const count = async () => {
-  try{
-  const PurchaseCount = await Purchase.count({});
-  return { data: { count: PurchaseCount } };
-  }
-  catch(err)
-  {
-    console.log("Error:'",err)
+  try {
+    const PurchaseCount = await Purchase.count({});
+    return { data: { count: PurchaseCount } };
+  } catch (err) {
+    console.log("Error:'", err);
   }
 };
 
-
-const findById = async (id) =>{
-  try{
-    const Purchase = await Purchase.findOne({_id: id})
-    return Purchase
-  }
-  catch(err){
-    console.log("Error: ", err)
-  }
-}
-const create_purchase_order = async (source, body) => {
+const findById = async (id) => {
   try {
+    const Purchase = await Purchase.findOne({ _id: id });
+    return Purchase;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+};
+const create_purchase_order = async ({ body }) => {
+  try {
+    console.log("//////resquest");
+    console.log(body);
     const {
       items,
       vendor_Name,
@@ -99,38 +83,37 @@ const create_purchase_order = async (source, body) => {
         vendor_city,
         vendor_country,
       },
-    })
+    });
     let data = await newVendor.save();
-    for (item of items){
+    for (item of items) {
       let newPurchase = new Purchase({
-        SKU:item.sku,
-        quantity:item.quantity,
-        price:item.price,
+        SKU: item.sku,
+        quantity: item.quantity,
+        price: item.price,
         vendor_email,
         status,
       });
       let data1 = await newPurchase.save();
-
     }
-    console.log(vendor_email)
+    console.log(vendor_email);
     sns
-        .publish({
-          Message: JSON.stringify({
-            "method":"purchase",
-            item,
-          }),
-          Subject: 'snsPurchaseCreatedTopic',
-          TopicArn: snsTopics.snsPurchaseCreatedTopic,
-        })
-        .promise()
-        .then((r) => console.log(r));
-    
-   await sqs
+      .publish({
+        Message: JSON.stringify({
+          method: "purchase",
+          item,
+        }),
+        Subject: "snsPurchaseCreatedTopic",
+        TopicArn: snsTopics.snsPurchaseCreatedTopic,
+      })
+      .promise()
+      .then((r) => console.log(r));
+
+    await sqs
       .sendMessage({
         MessageBody: JSON.stringify({
           to: vendor_email,
           body: {
-            text: 'purchase order',
+            text: "purchase order",
             htmlData: items,
           },
         }),
@@ -140,12 +123,10 @@ const create_purchase_order = async (source, body) => {
       .then((r) => console.log(r));
 
     return { statusCode: 200, data };
-  
   } catch (err) {
     console.log(err);
-    
-    return { statusCode: 400, message: err.message };
 
+    return { statusCode: 400, message: err.message };
   }
 };
 
